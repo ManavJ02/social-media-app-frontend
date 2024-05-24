@@ -23,7 +23,7 @@ export default function UpdateProfilePage() {
     bio: user.bio,
     password: user.password,
   });
-  console.log(user, "user is here");
+  console.log(user, "user is here for now");
 
   return (
     <Flex align={"center"} justify={"center"} my={6}>
