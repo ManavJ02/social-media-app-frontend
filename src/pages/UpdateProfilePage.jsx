@@ -21,7 +21,7 @@ export default function UpdateProfilePage() {
     username: user.username,
     email: user.email,
     bio: user.bio,
-    password: user.password,
+    password: "",
   });
   console.log(user, "user is here for now");
 
@@ -42,10 +42,11 @@ export default function UpdateProfilePage() {
         <FormControl id="userName">
           <Stack direction={["column", "row"]} spacing={6}>
             <Center>
-              <Avatar size="xl" src="https://bit.ly/sage-adebayo" />
+              <Avatar size="xl" boxShadow={"md"} src={user.profilePic} />
             </Center>
             <Center w="full">
               <Button w="full">Change Avatar</Button>
+              <Input type="file" hidden/>
             </Center>
           </Stack>
         </FormControl>
@@ -53,6 +54,8 @@ export default function UpdateProfilePage() {
           <FormLabel>Full name</FormLabel>
           <Input
             placeholder="FullName"
+            value={inputs.name}
+            onChange={(e) => setInputs({...inputs, name: e.target.value})}
             _placeholder={{ color: "gray.500" }}
             type="text"
           />
@@ -61,6 +64,8 @@ export default function UpdateProfilePage() {
           <FormLabel>User name</FormLabel>
           <Input
             placeholder="UserName"
+            value={inputs.username}
+            onChange={(e) => setInputs({...inputs, username: e.target.value})}
             _placeholder={{ color: "gray.500" }}
             type="text"
           />
@@ -69,6 +74,8 @@ export default function UpdateProfilePage() {
           <FormLabel>Email address</FormLabel>
           <Input
             placeholder="your-email@example.com"
+            value={inputs.email}
+            onChange={(e) => setInputs({...inputs, email: e.target.value})}
             _placeholder={{ color: "gray.500" }}
             type="email"
           />
@@ -77,6 +84,8 @@ export default function UpdateProfilePage() {
           <FormLabel>Bio</FormLabel>
           <Input
             placeholder="Write something about yourself"
+            value={inputs.bio}
+            onChange={(e) => setInputs({...inputs, bio: e.target.value})}
             _placeholder={{ color: "gray.500" }}
             type="email"
           />
@@ -85,6 +94,8 @@ export default function UpdateProfilePage() {
           <FormLabel>Password</FormLabel>
           <Input
             placeholder="password"
+            value={inputs.password}
+            onChange={(e) => setInputs({...inputs, password: e.target.value})}
             _placeholder={{ color: "gray.500" }}
             type="password"
           />
