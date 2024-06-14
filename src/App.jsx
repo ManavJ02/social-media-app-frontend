@@ -12,7 +12,7 @@ import UpdateProfilePage from "./pages/UpdateProfilePage.jsx";
 
 function App() {
   const user = useRecoilValue(userAtom);
-
+  
   return (
     <Container maxW="620px">
       <Header />
