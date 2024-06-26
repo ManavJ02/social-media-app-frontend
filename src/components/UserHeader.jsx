@@ -11,17 +11,57 @@ import {
   Text,
   VStack,
   useToast,
-  Button
+  Button,
 } from "@chakra-ui/react";
 import { BsInstagram } from "react-icons/bs";
 import { CgMoreO } from "react-icons/cg";
 import { useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
-import {Link as RouterLink} from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
+import { useState } from "react";
+import useShowToast from "../hooks/useShowToast";
 
-const UserHeader = ({user}) => {
+const UserHeader = ({ user }) => {
   const toast = useToast();
   const currentUser = useRecoilValue(userAtom); // this is the user that is logged in
+  const [following, setFollowing] = useState(user.followers.includes(currentUser._id));
+  const showToast = useShowToast();
+  const [updating, setUpdating] = useState(false);
+
+  const handleFollowUnfollow = async () => {
+    if(!currentUser) {
+      showToast("Error", "Please login to follow", "error");
+        return;
+    }
+    if(updating) return;
+    setUpdating(true);
+
+    try {
+      const res = await fetch(`/api/users/follow/${user._id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        }
+      })
+      const data = await res.json();
+      if(data.error) {
+        showToast("Error", error, "error");
+        return;
+      }
+      if(following) {
+        showToast("Success", `Unfollowed ${user.name}`, "success");
+        user.followers.pop(); // simulate removing from followers
+      } else {
+        showToast("Success", `Followed ${user.name}`, "success");
+        user.followers.push(currentUser._id); // simulate adding to followers
+      }
+      setFollowing(!following);
+    } catch (error) {
+      showToast("Error", error, "error");
+    } finally {
+      setUpdating(false);
+    }
+  }
 
   const copyURL = () => {
     const currentURL = window.location.href;
@@ -35,6 +75,7 @@ const UserHeader = ({user}) => {
       });
     });
   };
+
   return (
     <VStack gap={4} align={"start"}>
       <Flex justifyContent={"space-between"} w={"full"}>
@@ -48,7 +89,7 @@ const UserHeader = ({user}) => {
               fontSize={{
                 base: "xs",
                 md: "sm",
-                lg: "md"
+                lg: "md",
               }}
               bg={"gray.dark"}
               color={"gray.light"}
@@ -61,16 +102,24 @@ const UserHeader = ({user}) => {
         </Box>
         <Box>
           {user.profilePic && (
-            <Avatar name={user.name} src={user.profilePic} size={{
-              base: "md",
-              md: "xl",
-            }} />
+            <Avatar
+              name={user.name}
+              src={user.profilePic}
+              size={{
+                base: "md",
+                md: "xl",
+              }}
+            />
           )}
           {!user.profilePic && (
-            <Avatar name={user.name} src="https://bit.ly/broken-link" size={{
-              base: "md",
-              md: "xl",
-            }} />
+            <Avatar
+              name={user.name}
+              src="https://bit.ly/broken-link"
+              size={{
+                base: "md",
+                md: "xl",
+              }}
+            />
           )}
         </Box>
       </Flex>
@@ -81,6 +130,7 @@ const UserHeader = ({user}) => {
           <Button size={"sm"}>Update Profile</Button>
         </Link>
       )}
+      {currentUser._id !== user._id && <Button size={"sm"} onClick={handleFollowUnfollow} isLoading={updating}>{following ? "Unfollow" : "Follow"}</Button>}
       <Flex w={"full"} justifyContent={"space-between"}>
         <Flex gap={2} alignItems={"center"}>
           <Text color={"gray.light"}>{user.followers.length} followers</Text>
@@ -107,13 +157,26 @@ const UserHeader = ({user}) => {
           </Box>
         </Flex>
       </Flex>
-      
+
       <Flex w={"full"}>
-        <Flex flex={1} borderBottom={"1.5px solid white"} justifyContent={"center"} pb="3" cursor={"pointer"}>
-            <Text fontWeight={"bold"}>Threads</Text>
+        <Flex
+          flex={1}
+          borderBottom={"1.5px solid white"}
+          justifyContent={"center"}
+          pb="3"
+          cursor={"pointer"}
+        >
+          <Text fontWeight={"bold"}>Threads</Text>
         </Flex>
-        <Flex flex={1} borderBottom={"1px solid gray"} justifyContent={"center"} color={"gray.light"} pb="3" cursor={"pointer"}>
-            <Text fontWeight={"bold"}>Replies</Text>
+        <Flex
+          flex={1}
+          borderBottom={"1px solid gray"}
+          justifyContent={"center"}
+          color={"gray.light"}
+          pb="3"
+          cursor={"pointer"}
+        >
+          <Text fontWeight={"bold"}>Replies</Text>
         </Flex>
       </Flex>
     </VStack>
