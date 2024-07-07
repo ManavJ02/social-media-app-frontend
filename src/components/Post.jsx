@@ -1,13 +1,15 @@
 import { Flex, Avatar, Box, Text, Image } from "@chakra-ui/react";
 import { BsThreeDots } from "react-icons/bs";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Actions from "./Actions";
 import { useEffect, useState } from "react";
 import useShowToast from "../hooks/useShowToast";
 
 const Post = ({ post, postedBy }) => {
   const [liked, setLiked] = useState(false);
+  const [user, setUser] = useState(null);
   const showToast = useShowToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getUser = async () => {
@@ -15,57 +17,84 @@ const Post = ({ post, postedBy }) => {
         const res = await fetch("/api/users/profile/" + postedBy);
         const data = await res.json();
         console.log(data);
-        if(data.error) {
-            showToast("Error", data.error, "error");
-            return;
+        if (data.error) {
+          showToast("Error", data.error, "error");
+          return;
         }
+        setUser(data);
       } catch (error) {
         showToast("Error", error.message, "error");
+        setUser(null);
       }
     };
+
+    getUser();
   }, [postedBy, showToast]);
 
+  if (!user) return null;
   return (
-    <Link to="/manav/post/1">
+    <Link to={`/${user.username}/post/${post._id}`}>
       <Flex gap={3} mb={4} py={5}>
         <Flex flexDirection={"column"} alignItems={"center"}>
-          <Avatar size="md" name="Spheal" src="/spheal-img.png" />
+          <Avatar
+            size="md"
+            name={user.name}
+            src={user?.profilePic}
+            onClick={(e) => {
+              e.preventDefault();
+              navigate(`/${user.username}`);
+            }}
+          />
           <Box w="1px" h={"full"} bg="gray.light" my={2}></Box>
           <Box position={"relative"} w={"full"}>
-            <Avatar
-              size="xs"
-              name="pichu1"
-              src="https://bit.ly/dan-abramov"
-              position={"absolute"}
-              top={"0px"}
-              left="15px"
-              padding={"2px"}
-            />
-            <Avatar
-              size="xs"
-              name="pichu2"
-              src="https://bit.ly/tioluwani-kolawole"
-              position={"absolute"}
-              bottom={"0px"}
-              right="-5px"
-              padding={"2px"}
-            />
-            <Avatar
-              size="xs"
-              name="pichu3"
-              src="https://bit.ly/kent-c-dodds"
-              position={"absolute"}
-              bottom={"0px"}
-              left="4px"
-              padding={"2px"}
-            />
+            {post.replies.length === 0 && <Text textAlign={"center"}>💤</Text>}
+            {post.replies[0] && (
+              <Avatar
+                size="xs"
+                name="pichu1"
+                src={post.replies[0].userProfilePic}
+                position={"absolute"}
+                top={"0px"}
+                left="15px"
+                padding={"2px"}
+              />
+            )}
+            {post.replies[1] && (
+              <Avatar
+                size="xs"
+                name="pichu1"
+                src={post.replies[1].userProfilePic}
+                position={"absolute"}
+                top={"0px"}
+                left="15px"
+                padding={"2px"}
+              />
+            )}
+            {post.replies[2] && (
+              <Avatar
+                size="xs"
+                name="pichu1"
+                src={post.replies[2].userProfilePic}
+                position={"absolute"}
+                top={"0px"}
+                left="15px"
+                padding={"2px"}
+              />
+            )}
           </Box>
         </Flex>
         <Flex flex={1} flexDirection={"column"} gap={2}>
           <Flex justifyContent={"space-between"} w={"full"}>
             <Flex w={"full"} alignItems={"center"}>
-              <Text fontSize={"sm"} fontWeight={"bold"}>
-                spheal
+              <Text
+                fontSize={"sm"}
+                fontWeight={"bold"}
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate(`/${user.username}`);
+                }}
+              >
+                {user?.username}
               </Text>
               <Image src="/verified-img.png" w={4} h={4} ml={1} />
             </Flex>
