@@ -21,9 +21,11 @@ import {
 import { useRef, useState } from "react";
 import usePreviewImage from "../hooks/usePreviewImage";
 import { BsFillImageFill } from "react-icons/bs";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 import useShowToast from "../hooks/useShowToast";
+import postsAtom from "../atoms/postsAtom";
+import { useParams } from "react-router-dom";
 
 const MAX_CHAR = 500;
 
@@ -36,6 +38,8 @@ const CreatePost = () => {
   const user = useRecoilValue(userAtom);
   const showToast = useShowToast();
   const [loading, setLoading] = useState(false);
+  const [posts, setPosts] = useRecoilState(postsAtom);
+  const {username} = useParams();
 
   const handleTextChange = (e) => {
     const inputText = e.target.value;
@@ -70,12 +74,15 @@ const CreatePost = () => {
         return;
       }
       showToast("Success", "Post Created Successfully", "success");
+      if (username === user.username) {
+        setPosts([data, ...posts]);
+      }
       onClose();
       setPostText("");
     } catch (error) {
       showToast("Error", error, "error");
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -84,12 +91,12 @@ const CreatePost = () => {
       <Button
         position={"fixed"}
         bottom={10}
-        right={10}
-        leftIcon={<AddIcon />}
+        right={5}
         bg={useColorModeValue("gray.300", "gray.dark")}
         onClick={onOpen}
+        size={{ base: "sm", sm: "md" }}
       >
-        Post
+        <AddIcon />
       </Button>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
@@ -141,7 +148,12 @@ const CreatePost = () => {
           </ModalBody>
 
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={HandleCreatePost} isLoading={loading}>
+            <Button
+              colorScheme="blue"
+              mr={3}
+              onClick={HandleCreatePost}
+              isLoading={loading}
+            >
               Post
             </Button>
           </ModalFooter>
