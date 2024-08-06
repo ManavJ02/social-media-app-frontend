@@ -9,8 +9,11 @@ const HomePage = () => {
   const [posts, setPosts] = useRecoilState(postsAtom);
   const [loading, setLoading] = useState(true);
   const showToast = useShowToast();
+
   useEffect(() => {
     const getFeedPosts = async () => {
+      setLoading(true);
+      setPosts([]);
       try {
         const res = await fetch("/api/posts/feed");
         const data = await res.json();
